@@ -1,0 +1,47 @@
+# Evolutionary Game Theory - Population Dynamics
+
+# Define strategies for Hawk-Dove game
+strategies := ["Hawk", "Dove"]
+
+# Payoff matrix (fitness function)
+payoffs := [
+    [V/2 - C/2, V],      # Hawk vs [Hawk, Dove]
+    [0, V/2]             # Dove vs [Hawk, Dove]
+] where V := 10, C := 15  # Resource value and fighting cost
+
+# Population game
+hawk_dove := population_game {
+    strategies: strategies,
+    payoffs: payoffs,
+    dynamics: replicator
+}
+
+# Find evolutionarily stable strategies (ESS)
+ess := find_ess(hawk_dove)
+print("ESS:", ess)
+
+# Simulate population dynamics
+initial_pop := [0.8, 0.2]  # 80% hawks, 20% doves
+trajectory := simulate_dynamics(
+    hawk_dove, 
+    initial: initial_pop,
+    time: 0..50 step 0.1
+)
+
+# Analyze convergence
+final_state := trajectory[-1]
+convergence_time := first(t | t, state in trajectory 
+                         if stable(state, tolerance: 0.01))
+
+print(f"Final population: Hawks={final_state[0]:.3f}, Doves={final_state[1]:.3f}")
+print(f"Convergence time: {convergence_time}")
+
+# Stability analysis using pattern matching
+stability := match ess {
+    [p, 1-p] if 0 < p < 1 -> "Mixed ESS - polymorphic population",
+    [1, 0] -> "Pure Hawk ESS - monomorphic",
+    [0, 1] -> "Pure Dove ESS - monomorphic",
+    _ -> "No stable strategy"
+}
+
+print("Stability analysis:", stability)

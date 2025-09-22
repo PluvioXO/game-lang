@@ -1,0 +1,33 @@
+# Prisoner's Dilemma - Classic Game Theory Example
+
+# Define players with compact syntax
+players := [
+    player("Alice", strategies: ["C", "D"]),
+    player("Bob", strategies: ["C", "D"])
+]
+
+# Payoff matrix using dense notation
+# Format: [Alice's payoffs | Bob's payoffs]
+pd_game := game(
+    players: players,
+    payoffs: [
+        [3,3 | 0,5],  # Alice cooperates: (C,C)=3,3  (C,D)=0,5
+        [5,0 | 1,1]   # Alice defects:   (D,C)=5,0  (D,D)=1,1
+    ]
+)
+
+# Find Nash equilibria
+equilibria := solve_nash(pd_game)
+print("Nash equilibria:", equilibria)
+
+# Analyze dominance
+alice_dominant := [s | s in pd_game.strategies["Alice"] 
+                   if dominates(s, pd_game.strategies["Alice"], pd_game)]
+print("Alice's dominant strategies:", alice_dominant)
+
+# Expected payoffs for mixed strategies
+alice_mixed := strategy(C: 0.7, D: 0.3)
+bob_mixed := strategy(C: 0.5, D: 0.5)
+
+expected := expected_payoff(alice_mixed, bob_mixed, pd_game)
+print("Expected payoffs with mixed strategies:", expected)

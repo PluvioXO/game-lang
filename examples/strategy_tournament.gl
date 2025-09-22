@@ -1,0 +1,95 @@
+# Tournament of Strategies - Complex Strategy Analysis
+
+# Define sophisticated strategies using dense syntax
+strategies := {
+    # Reactive strategies based on history
+    "TitForTat": (history) -> history ? history[-1].opponent : cooperate,
+    
+    "Generous": (history) -> {
+        last := history[-1] if history else nil
+        last.opponent == defect && random() < 0.1 ? cooperate : tit_for_tat(history)
+    },
+    
+    "Grudger": (history) -> 
+        any(round.opponent == defect | round in history) ? defect : cooperate,
+    
+    "Pavlov": (history) -> 
+        history && history[-1].my_payoff < 3 ? switch(history[-1].my_action) : 
+        history ? history[-1].my_action : cooperate,
+    
+    # Sophisticated strategies with memory
+    "TitForTwoTats": (history) -> 
+        len([r | r in history[-2:] if r.opponent == defect]) >= 2 ? defect : cooperate,
+    
+    "Gradual": (history) -> {
+        defections := count(r.opponent == defect | r in history)
+        match defections {
+            0 -> cooperate,
+            n -> punishment_phase(n, history) || cooperation_phase(2, history)
+        }
+    }
+}
+
+# Round-robin tournament with all strategy pairs
+tournament_results := {
+    (s1_name, s2_name): play_match(s1, s2, rounds: 200, noise: 0.01)
+    | (s1_name, s1), (s2_name, s2) in strategies.items()
+    if s1_name != s2_name
+}
+
+# Aggregate scores using pipeline operations
+final_scores := tournament_results.values()
+    |> flatten()
+    |> group_by(player_name)
+    |> map((name, games) -> (name, sum(game.score | game in games)))
+    |> sort_by(score, descending: T)
+
+# Statistical analysis with comprehensions
+win_rates := {
+    name: len([game | game in player_games if game.score > game.opponent_score]) 
+          / len(player_games)
+    | name, player_games in group_by(flatten(tournament_results.values()), player_name)
+}
+
+cooperation_rates := {
+    name: sum(game.cooperation_rate | game in player_games) / len(player_games)
+    | name, player_games in group_by(flatten(tournament_results.values()), player_name)
+}
+
+# Find robust strategies (good against all opponents)
+robustness_scores := {
+    name: min(scores | _, scores in tournament_results.items() 
+             if _.0 == name || _.1 == name)
+    | name in strategies.keys()
+}
+
+# Top performers analysis
+top_strategies := [name | name, _ in final_scores[:3]]
+robust_strategies := [name | name, score in robustness_scores.items() 
+                     if score >= median(robustness_scores.values())]
+
+# Pattern matching for strategy classification
+strategy_types := {
+    name: match cooperation_rates[name] {
+        rate if rate > 0.8 -> "Cooperative",
+        rate if rate < 0.2 -> "Defective", 
+        rate if 0.4 <= rate <= 0.6 -> "Conditional",
+        _ -> "Mixed"
+    }
+    | name in strategies.keys()
+}
+
+# Results summary
+print("Tournament Results:")
+print("==================")
+final_scores |> each((name, score) -> print(f"{name}: {score}"))
+
+print("\nStrategy Analysis:")
+print("==================")
+{name: {
+    "type": strategy_types[name],
+    "cooperation_rate": cooperation_rates[name],
+    "win_rate": win_rates[name],
+    "robustness": robustness_scores[name]
+} | name in strategies.keys()}
+|> pretty_print()
