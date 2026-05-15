@@ -256,6 +256,27 @@ equilibria := games.flat_map(find_all_equilibria)
 - [API Reference](docs/api.md) - Built-in functions and types (TODO)
 - [Tutorial](docs/tutorial.md) - Learning GameLang step by step (TODO)
 
+## Citation
+
+If you use GameLang in research, teaching materials, or a project write-up, please cite the repository:
+
+```text
+Nicholson, M. (2026). GameLang: Declarative Game Theory Programming Language.
+GitHub. https://github.com/PluvioXO/game-lang
+```
+
+BibTeX:
+
+```bibtex
+@software{nicholson_2026_gamelang,
+  author = {Nicholson, Maximilian},
+  title = {GameLang: Declarative Game Theory Programming Language},
+  year = {2026},
+  publisher = {GitHub},
+  url = {https://github.com/PluvioXO/game-lang}
+}
+```
+
 ## Contributing
 
 GameLang is an open-source project. Contributions are welcome!
