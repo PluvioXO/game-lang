@@ -84,6 +84,7 @@ void Lexer::scanToken() {
         case '\t':
             break;
         case '\n':
+            addToken(TokenType::NEWLINE, "\\n");
             break;
             
         // Single character tokens

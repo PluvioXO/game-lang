@@ -208,6 +208,17 @@ equilibria := strategies
 
 ## Built-in Game Theory Functions
 
+The current runnable MVP implements a practical subset of these built-ins:
+`validate_game`, `describe`, `solve_nash`, `find_all_nash`, `solve`,
+`explain_nash`, `dominated_strategies`, `find_dominant_strategies`,
+`iterated_elimination`, `expected_payoff`, `price_of_anarchy`, `tournament`,
+`rank_by_performance`, `sweep`, `seed`, `belief`, `auction`, `voting`,
+`matching`, `find_game`, `counterexample_search`, `export_csv`,
+`export_json`, and `export_dot`.
+
+Advanced equilibrium refinements are registered as callable hooks and return
+structured placeholder results until their numerical solvers are implemented.
+
 ### Equilibrium Concepts
 ```gamelang
 # Nash equilibrium

@@ -1,39 +1,17 @@
-# Auction Theory - First-Price Sealed-Bid Auction
+# Auction Theory - First-Price Sealed-Bid Auction Metadata
 
-# Player types with private valuations
 bidders := [
-    player(f"Bidder{i}", 
-           valuation: uniform(0, 100),
-           bid_function: (v, n) -> (n-1)/n * v)  # Symmetric equilibrium
-    | i in 1..5
+    player("Bidder1", valuation: uniform(0, 100)),
+    player("Bidder2", valuation: uniform(0, 100)),
+    player("Bidder3", valuation: uniform(0, 100)),
+    player("Bidder4", valuation: uniform(0, 100)),
+    player("Bidder5", valuation: uniform(0, 100))
 ]
 
-# First-price auction mechanism
-auction := game {
-    players: bidders,
-    mechanism: first_price_sealed_bid,
-    payoff: (bid, valuation, others) -> 
-        wins(bid, others) ? (valuation - bid) : 0
-}
+first_price := auction(first_price_sealed_bid, bidders: len(bidders), values: uniform(0, 100))
+second_price := auction(second_price_sealed_bid, bidders: len(bidders), values: uniform(0, 100))
 
-# Simulate auction outcomes
-outcomes := [simulate_auction(auction) | _ in 1..1000]
+print("First-price auction:", first_price)
+print("Second-price auction:", second_price)
 
-# Analyze results with comprehensions
-revenues := [outcome.winning_bid | outcome in outcomes]
-efficiencies := [outcome.winner.valuation / max_valuation(outcome) 
-                | outcome in outcomes]
-
-# Statistics
-avg_revenue := sum(revenues) / len(revenues)
-efficiency_rate := sum(efficiencies) / len(efficiencies)
-
-print(f"Average revenue: {avg_revenue}")
-print(f"Efficiency rate: {efficiency_rate}")
-
-# Revenue comparison with second-price auction
-sp_revenues := [second_price_revenue(outcome.valuations) 
-               | outcome in outcomes]
-revenue_difference := avg_revenue - (sum(sp_revenues) / len(sp_revenues))
-
-print(f"Revenue difference (1st vs 2nd price): {revenue_difference}")
+export_json(first_price, "first_price_auction.json")

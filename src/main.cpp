@@ -4,6 +4,7 @@
 #include <sstream>
 #include "lexer/lexer.h"
 #include "lexer/token.h"
+#include "interpreter/interpreter.h"
 
 using namespace GameLang;
 
@@ -27,12 +28,14 @@ void runREPL() {
     std::cout << "GameLang REPL v1.0 - Game Theory Programming Language\n";
     std::cout << "Type 'exit' to quit, 'help' for commands\n\n";
     
-    Lexer lexer("");
+    Interpreter interpreter;
     std::string input;
     
     while (true) {
         std::cout << "gl> ";
-        std::getline(std::cin, input);
+        if (!std::getline(std::cin, input)) {
+            break;
+        }
         
         if (input == "exit" || input == "quit") {
             break;
@@ -40,41 +43,70 @@ void runREPL() {
         
         if (input == "help") {
             std::cout << "GameLang Commands:\n";
-            std::cout << "  help     - Show this help\n";
-            std::cout << "  tokens   - Show lexical analysis\n";
-            std::cout << "  exit     - Exit REPL\n";
+            std::cout << "  help                 - Show this help\n";
+            std::cout << "  :tokens <source>     - Show lexical analysis\n";
+            std::cout << "  :ast <source>        - Show statement parser preview\n";
+            std::cout << "  :run <source>        - Execute inline source\n";
+            std::cout << "  :load <file>         - Execute a GameLang file\n";
+            std::cout << "  :examples            - List bundled examples\n";
+            std::cout << "  exit                 - Exit REPL\n";
             std::cout << "\nExample syntax:\n";
             std::cout << "  x := 42\n";
             std::cout << "  players := [player(\"Alice\"), player(\"Bob\")]\n";
             std::cout << "  payoffs := [[3,3|0,5], [5,0|1,1]]\n";
-            std::cout << "  equilibria := solve_nash(game)\n\n";
+            std::cout << "  equilibria := solve_nash(pd_game)\n";
+            std::cout << "  strategies |> tournament(rounds: 200) |> rank_by_performance()\n\n";
             continue;
         }
         
         if (input.empty()) {
             continue;
         }
-        
+
         try {
-            lexer.reset(input);
-            auto tokens = lexer.scanTokens();
-            
-            // For now, just show tokens (parser/interpreter will be added later)
-            std::cout << "Lexical analysis:\n";
-            for (const auto& token : tokens) {
-                if (token.type != TokenType::EOF_TOKEN) {
-                    std::cout << "  " << tokenTypeToString(token.type);
-                    if (!token.lexeme.empty()) {
-                        std::cout << " '" << token.lexeme << "'";
-                    }
-                    if (token.type == TokenType::NUMBER) {
-                        std::cout << " (" << token.numberValue << ")";
-                    }
-                    std::cout << "\n";
-                }
+            if (input.rfind(":tokens", 0) == 0) {
+                std::string source = input.size() > 8 ? input.substr(8) : "";
+                Lexer lexer(source);
+                printTokens(lexer.scanTokens());
+                continue;
             }
-            std::cout << "\n";
-            
+
+            if (input.rfind(":ast", 0) == 0) {
+                std::string source = input.size() > 5 ? input.substr(5) : "";
+                std::cout << interpreter.debugStatements(source);
+                continue;
+            }
+
+            if (input.rfind(":run", 0) == 0) {
+                std::string source = input.size() > 5 ? input.substr(5) : "";
+                interpreter.execute(source, true);
+                continue;
+            }
+
+            if (input.rfind(":load", 0) == 0) {
+                std::string filename = input.size() > 6 ? input.substr(6) : "";
+                std::ifstream file(filename);
+                if (!file.is_open()) {
+                    std::cout << "Error: Could not open file '" << filename << "'\n\n";
+                    continue;
+                }
+                std::stringstream buffer;
+                buffer << file.rdbuf();
+                interpreter.execute(buffer.str(), true);
+                continue;
+            }
+
+            if (input == ":examples") {
+                std::cout << valueToString(interpreter.callFunction("examples", {})) << "\n";
+                continue;
+            }
+
+            if (input == "tokens") {
+                std::cout << "Use :tokens <source> to inspect lexical analysis.\n\n";
+                continue;
+            }
+
+            interpreter.execute(input, true);
         } catch (const std::exception& e) {
             std::cout << "Error: " << e.what() << "\n\n";
         }
@@ -98,16 +130,8 @@ void runFile(const std::string& filename) {
     std::cout << "=====================================\n\n";
     
     try {
-        Lexer lexer(source);
-        auto tokens = lexer.scanTokens();
-        
-        // Show lexical analysis
-        std::cout << "Lexical Analysis:\n";
-        printTokens(tokens);
-        
-        // TODO: Add parser and interpreter
-        std::cout << "Parser and interpreter will be implemented next.\n";
-        std::cout << "For now, showing lexical analysis only.\n\n";
+        Interpreter interpreter;
+        interpreter.execute(source, false);
         
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << "\n";

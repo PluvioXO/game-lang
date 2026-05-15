@@ -27,6 +27,7 @@ enum class TokenType {
     TRUE,       // T
     FALSE,      // F
     NIL,        // nil
+    WHERE,      // where
     
     // Game Theory Keywords
     PLAYER,
@@ -105,6 +106,7 @@ enum class TokenType {
     SEMICOLON,      // ;
     COLON,          // :
     QUESTION,       // ?
+    NEWLINE,        // statement separator
     
     // Special
     EOF_TOKEN,

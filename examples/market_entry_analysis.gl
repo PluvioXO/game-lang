@@ -1,91 +1,26 @@
 # Market Entry Game - Strategic Analysis with Parameter Sweeps
 
-# Define market entry game as a function of parameters
-market_entry := (cost, demand, fight_damage) -> game {
-    players: ["Incumbent", "Entrant"],
-    strategies: {
-        "Incumbent": ["Accommodate", "Fight"],
-        "Entrant": ["Enter", "Stay_Out"]
-    },
+players := [
+    player("Incumbent", strategies: ["Accommodate", "Fight"]),
+    player("Entrant", strategies: ["Enter", "Stay_Out"])
+]
+
+market_entry := game(
+    players: players,
     payoffs: [
-        # Entrant strategies: [Enter, Stay_Out]
-        [(demand/2 - cost, demand/2), (demand, 0)],           # Incumbent accommodates
-        [(fight_damage - cost, demand - fight_damage), (demand, 0)]  # Incumbent fights
+        [8,8 | 12,0],
+        [2,4 | 12,0]
     ]
-}
-
-# Parameter space exploration
-parameter_space := {
-    (c, d, f): solve_nash(market_entry(c, d, f))
-    | c in 0..20 step 2,     # entry costs
-      d in 10..50 step 5,    # market demand  
-      f in 0..15 step 1      # fighting damage
-}
-
-# Find entry deterrence region using comprehensions
-deterrence_region := {
-    (c, d, f) | (c, d, f), equilibria in parameter_space.items()
-    if all(eq.entrant_strategy == "Stay_Out" | eq in equilibria)
-}
-
-accommodation_region := {
-    (c, d, f) | (c, d, f), equilibria in parameter_space.items()
-    if any(eq.incumbent_strategy == "Accommodate" && eq.entrant_strategy == "Enter" 
-           | eq in equilibria)
-}
-
-# Mixed strategy regions
-mixed_regions := {
-    (c, d, f) | (c, d, f), equilibria in parameter_space.items()
-    if any(is_mixed(eq.incumbent_strategy) || is_mixed(eq.entrant_strategy) 
-           | eq in equilibria)
-}
-
-# Welfare analysis across parameter space
-welfare_analysis := {
-    (c, d, f): {
-        "total_welfare": sum(eq.total_payoff | eq in equilibria),
-        "consumer_surplus": consumer_surplus(d, equilibria),
-        "efficiency_loss": efficiency_loss(d, equilibria)
-    }
-    | (c, d, f), equilibria in parameter_space.items()
-}
-
-# Find optimal policy parameters
-optimal_welfare := max(
-    welfare_analysis.values(), 
-    key: analysis -> analysis.total_welfare
 )
 
-optimal_params := first(
-    params | params, analysis in welfare_analysis.items()
-    if analysis == optimal_welfare
-)
-
-# Comparative statics - how equilibrium changes with parameters
-cost_sensitivity := {
-    d: [eq.probability_enter | (c, demand, f), equilibria in parameter_space.items()
-        if demand == d, eq in equilibria]
-    | d in 10..50 step 5
-}
-
-# Results visualization data
 print("Market Entry Analysis")
 print("====================")
+print(describe(market_entry))
 
-print(f"Deterrence region size: {len(deterrence_region)} parameter combinations")
-print(f"Accommodation region size: {len(accommodation_region)} parameter combinations") 
-print(f"Mixed strategy region size: {len(mixed_regions)} parameter combinations")
+parameter_sweep := sweep(market_entry, values: 0..20 step 5, param: "entry_cost", metric: "price_of_anarchy")
+print("Parameter sweep:", parameter_sweep)
 
-print(f"\nOptimal parameters for welfare: {optimal_params}")
-print(f"Maximum total welfare: {optimal_welfare.total_welfare}")
+counterexample := find_game(metric: "price_of_anarchy", greater_than: 3)
+print("Counterexample game with high price of anarchy:", describe(counterexample))
 
-# Policy recommendations using pattern matching
-policy_recommendation := match optimal_params {
-    (c, d, f) if c > 10 -> "High entry barriers reduce welfare",
-    (c, d, f) if f > d/2 -> "Fighting is too costly, regulation needed",
-    (c, d, f) if d > 40 -> "Large market supports multiple firms",
-    _ -> "Market parameters within normal range"
-}
-
-print(f"Policy recommendation: {policy_recommendation}")
+export_csv(parameter_sweep, "market_entry_sweep.csv")

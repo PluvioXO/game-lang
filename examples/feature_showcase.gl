@@ -1,0 +1,60 @@
+# GameLang Feature Showcase - Runnable MVP
+
+seed(7)
+
+players := [
+    player("Alice", strategies: ["C", "D"]),
+    player("Bob", strategies: ["C", "D"])
+]
+
+pd_game := game(
+    players: players,
+    payoffs: [[3,3 | 0,5], [5,0 | 1,1]]
+)
+
+print("Validation:", validate_game(pd_game))
+print("Description:", describe(pd_game))
+print("Nash:", solve_nash(pd_game))
+print("Nash explanation:", explain_nash(pd_game))
+print("Dominance:", find_dominant_strategies(pd_game))
+print("Iterated elimination:", iterated_elimination(pd_game))
+
+alice_mixed := strategy(C: 0.7, D: 0.3)
+bob_mixed := strategy(C: 0.5, D: 0.5)
+print("Mixed payoff:", expected_payoff(alice_mixed, bob_mixed, pd_game))
+
+beliefs := belief(high: 0.4, low: 0.6)
+auction_model := auction(first_price_sealed_bid, bidders: 5, values: uniform(0, 100), beliefs: beliefs)
+voting_model := voting(borda, candidates: ["A", "B", "C"])
+matching_model := matching(deferred_acceptance, sides: ["firms", "workers"])
+
+print("Auction:", auction_model)
+print("Voting:", voting_model)
+print("Matching:", matching_model)
+print("Refinement hook:", solve(pd_game, concept: correlated))
+
+strategies := {
+    TitForTat: "TitForTat",
+    Generous: "Generous",
+    Grudger: "Grudger",
+    Pavlov: "Pavlov",
+    Random: "Random"
+}
+
+ranking := strategies
+    |> tournament(rounds: 50, noise: 0.01)
+    |> rank_by_performance()
+
+print("Tournament ranking:", ranking)
+
+poa_game := find_game(metric: "price_of_anarchy", greater_than: 3)
+print("Price of anarchy:", price_of_anarchy(poa_game))
+
+summary := sweep(poa_game, values: 1..5, param: "trial", metric: "price_of_anarchy")
+print("Sweep:", summary)
+
+assert len(solve_nash(pd_game)) == 1
+
+export_csv(ranking, "feature_tournament.csv")
+export_json(summary, "feature_sweep.json")
+export_dot(pd_game, "feature_pd.dot")

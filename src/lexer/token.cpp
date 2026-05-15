@@ -18,6 +18,7 @@ const std::unordered_map<std::string, TokenType> keywords = {
     {"T", TokenType::TRUE},
     {"F", TokenType::FALSE},
     {"nil", TokenType::NIL},
+    {"where", TokenType::WHERE},
     
     // Game theory keywords
     {"player", TokenType::PLAYER},
@@ -63,6 +64,7 @@ std::string tokenTypeToString(TokenType type) {
         case TokenType::TRUE: return "TRUE";
         case TokenType::FALSE: return "FALSE";
         case TokenType::NIL: return "NIL";
+        case TokenType::WHERE: return "WHERE";
         
         case TokenType::PLAYER: return "PLAYER";
         case TokenType::STRATEGY: return "STRATEGY";
@@ -130,6 +132,7 @@ std::string tokenTypeToString(TokenType type) {
         case TokenType::SEMICOLON: return "SEMICOLON";
         case TokenType::COLON: return "COLON";
         case TokenType::QUESTION: return "QUESTION";
+        case TokenType::NEWLINE: return "NEWLINE";
         
         case TokenType::EOF_TOKEN: return "EOF";
         case TokenType::ERROR: return "ERROR";

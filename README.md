@@ -124,8 +124,14 @@ src/
 ├── lexer/          # Tokenization and lexical analysis
 ├── parser/         # Recursive descent parser (TODO)
 ├── ast/            # Abstract syntax tree nodes
-├── interpreter/    # Execution engine (TODO)
-└── utils/          # Utilities and helpers
+└── interpreter/    # Runtime, evaluator, builtins, and game analysis
+    ├── interpreter.*          # Program execution, statements, bindings
+    ├── runtime_value.*        # Runtime value representation and formatting
+    ├── runtime_support.*      # Shared coercion, object, and argument helpers
+    ├── token_utils.*          # Statement splitting and token helpers
+    ├── expression_evaluator.* # Expression parser/evaluator
+    ├── builtins.*             # Built-in function dispatch
+    └── game_analysis.*        # Validation, Nash, dominance, welfare analysis
 ```
 
 ### Current Implementation Status
@@ -136,12 +142,52 @@ src/
 - Project structure and build system
 - REPL and file execution
 - Comprehensive example programs
+- Token-driven parser/evaluator for the runnable MVP subset
+- Variables, lists, dictionaries, ranges, indexing, member access, `where` bindings, assertions, and pipelines
+- Native game/player/strategy/belief/mechanism values
+- Pure Nash solving, explanation, validation, dominance analysis, expected mixed-strategy payoff, tournament simulation, sweeps, export helpers, and counterexample search
 
  **In Progress:**
-- Recursive descent parser
-- Symbol table and environment
-- Interpreter/evaluator
-- Error handling system
+- Full recursive-descent/AST-backed parser
+- Lambda execution, comprehensions, pattern matching, and advanced control flow
+- Numeric solvers for mixed Nash, correlated equilibrium, refinement concepts, and ESS dynamics
+- Richer diagnostics and source spans
+
+### Runnable MVP Feature Surface
+
+```gamelang
+pd := game(
+    players: [
+        player("Alice", strategies: ["C", "D"]),
+        player("Bob", strategies: ["C", "D"])
+    ],
+    payoffs: [[3,3 | 0,5], [5,0 | 1,1]]
+)
+
+print(validate_game(pd))
+print(solve_nash(pd))
+print(explain_nash(pd))
+print(find_dominant_strategies(pd))
+print(iterated_elimination(pd))
+
+ranking := {
+    TitForTat: "TitForTat",
+    Grudger: "Grudger",
+    Pavlov: "Pavlov"
+} |> tournament(rounds: 100) |> rank_by_performance()
+
+export_csv(ranking, "ranking.csv")
+```
+
+Useful REPL commands:
+
+```text
+:tokens <source>
+:ast <source>
+:run <source>
+:load examples/feature_showcase.gl
+:examples
+```
 
 ## Game Theory Features
 

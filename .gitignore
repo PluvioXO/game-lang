@@ -1,0 +1,7 @@
+build/
+*.o
+
+# Example/export output
+/*.csv
+/*.json
+/*.dot

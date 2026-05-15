@@ -21,9 +21,11 @@ equilibria := solve_nash(pd_game)
 print("Nash equilibria:", equilibria)
 
 # Analyze dominance
-alice_dominant := [s | s in pd_game.strategies["Alice"] 
-                   if dominates(s, pd_game.strategies["Alice"], pd_game)]
-print("Alice's dominant strategies:", alice_dominant)
+dominant := find_dominant_strategies(pd_game)
+dominated := dominated_strategies(pd_game)
+print("Dominant strategies:", dominant)
+print("Dominated strategies:", dominated)
+print("Explanation:", explain_nash(pd_game))
 
 # Expected payoffs for mixed strategies
 alice_mixed := strategy(C: 0.7, D: 0.3)
@@ -31,3 +33,7 @@ bob_mixed := strategy(C: 0.5, D: 0.5)
 
 expected := expected_payoff(alice_mixed, bob_mixed, pd_game)
 print("Expected payoffs with mixed strategies:", expected)
+
+# Export artifacts for downstream analysis
+export_json(equilibria, "prisoners_dilemma_nash.json")
+export_dot(pd_game, "prisoners_dilemma.dot")
