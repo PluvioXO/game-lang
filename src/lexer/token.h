@@ -11,6 +11,7 @@ enum class TokenType {
     // Literals
     NUMBER,
     STRING,
+    FSTRING,
     IDENTIFIER,
     
     // Keywords - Core

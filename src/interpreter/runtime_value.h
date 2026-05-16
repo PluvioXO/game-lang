@@ -1,24 +1,37 @@
 #ifndef GAMELANG_RUNTIME_VALUE_H
 #define GAMELANG_RUNTIME_VALUE_H
 
+#include "lexer/token.h"
+
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <variant>
 #include <vector>
 
 namespace GameLang {
 
 struct RuntimeValue;
+struct RuntimeLambda;
 
 using RuntimeList = std::vector<RuntimeValue>;
 using RuntimeObject = std::map<std::string, RuntimeValue>;
 
+struct RuntimeLambda {
+    std::vector<std::string> parameters;
+    std::vector<Token> body;
+
+    RuntimeLambda(std::vector<std::string> parameters, std::vector<Token> body)
+        : parameters(std::move(parameters)), body(std::move(body)) {}
+};
+
 struct RuntimeValue {
     using ListPtr = std::shared_ptr<RuntimeList>;
     using ObjectPtr = std::shared_ptr<RuntimeObject>;
+    using LambdaPtr = std::shared_ptr<RuntimeLambda>;
 
-    std::variant<std::nullptr_t, double, std::string, bool, ListPtr, ObjectPtr> data;
+    std::variant<std::nullptr_t, double, std::string, bool, ListPtr, ObjectPtr, LambdaPtr> data;
 
     RuntimeValue();
     RuntimeValue(std::nullptr_t);
@@ -30,6 +43,7 @@ struct RuntimeValue {
 
     static RuntimeValue list(const RuntimeList& values);
     static RuntimeValue object(const RuntimeObject& values);
+    static RuntimeValue lambda(const std::vector<std::string>& parameters, const std::vector<Token>& body);
 
     bool isNil() const;
     bool isNumber() const;
@@ -37,6 +51,7 @@ struct RuntimeValue {
     bool isBool() const;
     bool isList() const;
     bool isObject() const;
+    bool isLambda() const;
 };
 
 struct CallArg {

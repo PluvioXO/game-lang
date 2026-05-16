@@ -49,6 +49,7 @@ std::string tokenTypeToString(TokenType type) {
     switch (type) {
         case TokenType::NUMBER: return "NUMBER";
         case TokenType::STRING: return "STRING";
+        case TokenType::FSTRING: return "FSTRING";
         case TokenType::IDENTIFIER: return "IDENTIFIER";
         
         case TokenType::LET: return "LET";

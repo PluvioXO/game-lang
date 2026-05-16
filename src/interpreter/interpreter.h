@@ -20,6 +20,7 @@ public:
     std::string debugStatements(const std::string& source);
 
     RuntimeValue callFunction(const std::string& name, const std::vector<CallArg>& args, bool parallel = false);
+    RuntimeValue callValue(const RuntimeValue& callable, const std::vector<CallArg>& args, bool parallel = false);
 
     bool hasVariable(const std::string& name) const;
     RuntimeValue getVariable(const std::string& name) const;
@@ -27,15 +28,17 @@ public:
 
     std::mt19937& rng();
 
+    RuntimeValue evaluateTokens(const std::vector<Token>& expressionTokens);
+    RuntimeValue evaluateTokensWithTemporaryBindings(
+        const std::vector<Token>& expressionTokens,
+        const std::vector<std::pair<std::string, RuntimeValue>>& bindings);
+
 private:
     std::unordered_map<std::string, RuntimeValue> variables;
     std::mt19937 randomEngine;
 
     RuntimeValue executeStatement(const std::vector<Token>& statement, bool echoExpressionResults);
-    RuntimeValue evaluateTokens(const std::vector<Token>& expressionTokens);
-    RuntimeValue evaluateTokensWithTemporaryBindings(
-        const std::vector<Token>& expressionTokens,
-        const std::vector<std::pair<std::string, RuntimeValue>>& bindings);
+    std::vector<RuntimeValue> executeTokenBlock(const std::vector<Token>& block, bool echoExpressionResults);
 };
 
 } // namespace GameLang

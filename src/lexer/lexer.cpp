@@ -202,7 +202,9 @@ void Lexer::scanToken() {
             break;
             
         default:
-            if (isDigit(c)) {
+            if (c == 'f' && peek() == '"') {
+                scanFString();
+            } else if (isDigit(c)) {
                 scanNumber();
             } else if (isAlpha(c)) {
                 scanIdentifier();
@@ -258,6 +260,50 @@ void Lexer::scanString() {
     }
     
     addToken(TokenType::STRING, processed);
+}
+
+void Lexer::scanFString() {
+    // The leading 'f' has already been consumed; consume the opening quote.
+    advance();
+
+    while (peek() != '"' && !isAtEnd()) {
+        if (peek() == '\n') {
+            line++;
+            column = 1;
+        }
+        advance();
+    }
+
+    if (isAtEnd()) {
+        std::cerr << "Error: Unterminated f-string at line " << line << std::endl;
+        addToken(TokenType::ERROR);
+        return;
+    }
+
+    advance();
+
+    std::string value = source.substr(start + 2, current - start - 3);
+    std::string processed;
+    for (size_t i = 0; i < value.length(); i++) {
+        if (value[i] == '\\' && i + 1 < value.length()) {
+            switch (value[i + 1]) {
+                case 'n': processed += '\n'; break;
+                case 't': processed += '\t'; break;
+                case 'r': processed += '\r'; break;
+                case '\\': processed += '\\'; break;
+                case '"': processed += '"'; break;
+                default:
+                    processed += value[i];
+                    processed += value[i + 1];
+                    break;
+            }
+            i++;
+        } else {
+            processed += value[i];
+        }
+    }
+
+    addToken(TokenType::FSTRING, processed);
 }
 
 void Lexer::scanNumber() {

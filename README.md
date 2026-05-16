@@ -143,14 +143,15 @@ src/
 - REPL and file execution
 - Comprehensive example programs
 - Token-driven parser/evaluator for the runnable MVP subset
-- Variables, lists, dictionaries, ranges, indexing, member access, `where` bindings, assertions, and pipelines
+- Variables, destructuring, lists, sets, dictionaries, ranges, indexing, member access, `where` bindings, assertions, control flow, and pipelines
+- Lambda execution, list/set comprehensions, generator expressions, f-strings, block-style constructors, and pattern matching
 - Native game/player/strategy/belief/mechanism values
-- Pure Nash solving, explanation, validation, dominance analysis, expected mixed-strategy payoff, tournament simulation, sweeps, export helpers, and counterexample search
+- Pure and 2x2 mixed Nash solving, correlated-equilibrium support objects, refinement labeling, ESS candidates, dynamics simulation, game transformations, explanation, validation, dominance analysis, expected mixed-strategy payoff, tournament simulation, sweeps, export helpers, and counterexample search
+- Unit and integration tests covering the README feature surface
 
  **In Progress:**
 - Full recursive-descent/AST-backed parser
-- Lambda execution, comprehensions, pattern matching, and advanced control flow
-- Numeric solvers for mixed Nash, correlated equilibrium, refinement concepts, and ESS dynamics
+- Full numerical solvers for general mixed Nash, correlated-equilibrium LPs, refinement concepts, and ESS dynamics
 - Richer diagnostics and source spans
 
 ### Runnable MVP Feature Surface
@@ -252,9 +253,9 @@ equilibria := games.flat_map(find_all_equilibria)
 ## Documentation
 
 - [Language Specification](LANGUAGE_SPEC.md) - Complete syntax and semantics
-- [Game Theory Primer](docs/game_theory.md) - Mathematical background (TODO)
-- [API Reference](docs/api.md) - Built-in functions and types (TODO)
-- [Tutorial](docs/tutorial.md) - Learning GameLang step by step (TODO)
+- [Game Theory Primer](docs/game_theory.md) - Mathematical background
+- [API Reference](docs/api.md) - Built-in functions and types
+- [Tutorial](docs/tutorial.md) - Learning GameLang step by step
 
 ## Citation
 

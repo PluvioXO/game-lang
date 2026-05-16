@@ -56,12 +56,19 @@ RuntimeValue RuntimeValue::object(const RuntimeObject& values) {
     return value;
 }
 
+RuntimeValue RuntimeValue::lambda(const std::vector<std::string>& parameters, const std::vector<Token>& body) {
+    RuntimeValue value;
+    value.data = std::make_shared<RuntimeLambda>(parameters, body);
+    return value;
+}
+
 bool RuntimeValue::isNil() const { return std::holds_alternative<std::nullptr_t>(data); }
 bool RuntimeValue::isNumber() const { return std::holds_alternative<double>(data); }
 bool RuntimeValue::isString() const { return std::holds_alternative<std::string>(data); }
 bool RuntimeValue::isBool() const { return std::holds_alternative<bool>(data); }
 bool RuntimeValue::isList() const { return std::holds_alternative<ListPtr>(data); }
 bool RuntimeValue::isObject() const { return std::holds_alternative<ObjectPtr>(data); }
+bool RuntimeValue::isLambda() const { return std::holds_alternative<LambdaPtr>(data); }
 
 bool isTruthy(const RuntimeValue& value) {
     if (value.isNil()) return false;
@@ -70,6 +77,7 @@ bool isTruthy(const RuntimeValue& value) {
     if (value.isString()) return !std::get<std::string>(value.data).empty();
     if (value.isList()) return !std::get<RuntimeValue::ListPtr>(value.data)->empty();
     if (value.isObject()) return !std::get<RuntimeValue::ObjectPtr>(value.data)->empty();
+    if (value.isLambda()) return true;
     return false;
 }
 
@@ -113,6 +121,17 @@ std::string valueToString(const RuntimeValue& value) {
         out << "}";
         return out.str();
     }
+    if (value.isLambda()) {
+        const auto& lambda = *std::get<RuntimeValue::LambdaPtr>(value.data);
+        std::ostringstream out;
+        out << "<lambda(";
+        for (size_t i = 0; i < lambda.parameters.size(); ++i) {
+            if (i > 0) out << ", ";
+            out << lambda.parameters[i];
+        }
+        out << ")>";
+        return out.str();
+    }
     return "nil";
 }
 
@@ -149,6 +168,7 @@ std::string valueToJson(const RuntimeValue& value, int indent) {
         out << "\n" << pad << "}";
         return out.str();
     }
+    if (value.isLambda()) return escapeJsonString(valueToString(value));
     return "null";
 }
 

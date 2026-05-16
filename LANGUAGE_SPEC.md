@@ -216,8 +216,10 @@ The current runnable MVP implements a practical subset of these built-ins:
 `matching`, `find_game`, `counterexample_search`, `export_csv`,
 `export_json`, and `export_dot`.
 
-Advanced equilibrium refinements are registered as callable hooks and return
-structured placeholder results until their numerical solvers are implemented.
+Advanced equilibrium refinements return structured finite-game MVP results:
+two-by-two mixed Nash fallback, correlated-equilibrium support objects,
+refinement-labeled Nash results, and pure ESS candidates. General numerical
+solvers remain a roadmap item.
 
 ### Equilibrium Concepts
 ```gamelang

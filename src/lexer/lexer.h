@@ -28,6 +28,7 @@ private:
     
     void scanToken();
     void scanString();
+    void scanFString();
     void scanNumber();
     void scanIdentifier();
     void scanSingleLineComment();
